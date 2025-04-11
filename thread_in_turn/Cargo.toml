@@ -1,0 +1,9 @@
+[package]
+name = "thread_in_turn"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1.44.2", features = ["full"] }
+futures = "0.3"
+flume = "0.11.1"
