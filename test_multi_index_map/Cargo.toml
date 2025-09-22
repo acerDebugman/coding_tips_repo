@@ -4,5 +4,32 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-# multi_index_map = { path ="/home/algo/rust_workspace/multi_index_map/" }
+#multi_index_map = { path ="/home/algo/rust_workspace/multi_index_map" }
 multi_index_map = "0.15.0"
+tokio = { version = "1.46", features = [
+   "rt",
+   "rt-multi-thread",
+   "io-util",
+   "io-std",
+   "net",
+   "time",
+   "process",
+   "macros",
+   "sync",
+   "signal",
+   "fs",
+] }
+notify = "8.1"
+tokio-util = "0.7"
+futures = "0.3"
+futures-util = "0.3"
+tokio-stream = "0.1"
+tracing = "0.1"
+anyhow = "1"
+thiserror = "2"
+parking_lot = "0.12.3"
+tempfile = "3.13.0"
+rand = "0.8"
+bitfield = "0.19"
+bigdecimal = "0.4"
+prost = "0.14"
