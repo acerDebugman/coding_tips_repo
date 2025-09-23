@@ -2,11 +2,13 @@
 name = "test_multi_index_map"
 version = "0.1.0"
 edition = "2024"
+default-run = "test_multi_index_map"
 
 [dependencies]
-#multi_index_map = { path ="/home/algo/rust_workspace/multi_index_map" }
-multi_index_map = "0.15.0"
-tokio = { version = "1.46", features = [
+multi_index_map = { path ="/home/algo/rust_space/multi_index_map/multi_index_map" }
+#multi_index_map = "0.15.0"
+# tokio = { version = "1.46", features = [
+tokio = { version = "1.47.1", features = [
    "rt",
    "rt-multi-thread",
    "io-util",
@@ -33,3 +35,4 @@ rand = "0.8"
 bitfield = "0.19"
 bigdecimal = "0.4"
 prost = "0.14"
+flume = "0.11.1"

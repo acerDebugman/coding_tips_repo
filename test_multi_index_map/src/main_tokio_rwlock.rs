@@ -1,12 +1,10 @@
-use std::io::Write;
 use std::sync::Arc;
 use std::fmt::Debug;
 
 use multi_index_map::MultiIndexMap;
-use parking_lot::RwLock;
 use tokio::io::unix::AsyncFd;
 use tokio::runtime::Handle;
-// use tokio::sync::RwLock;
+use tokio::sync::RwLock;
 
 
 #[derive(Debug)]
@@ -69,25 +67,16 @@ async fn main() -> anyhow::Result<()> {
                         stop_sender: Arc::new(tokio::sync::oneshot::channel().0),
                         rand_n: rand::random::<i64>(),
                     };
-                    let mut writer_guard = agent_tasks.write();
+                    let mut writer_guard = agent_tasks.write().await;
                     writer_guard.insert(task);
                 }
             println!("insert agent_tasks exit");
         }
     });
     tasks.push(jd);
-
-    let (tx, mut rx) = tokio::sync::mpsc::channel::<String>(1000000);
-    std::thread::spawn(move || {
-        while let Some(msg) = rx.blocking_recv() {
-            println!("{msg}");
-        }
-    });
-
     //one clear
     tasks.push(tokio::spawn({
         let agent_tasks = agent_tasks.clone();
-        let tx = tx.clone();
         async move {
             let mut idx = 0;
             // loop {
@@ -117,13 +106,10 @@ async fn main() -> anyhow::Result<()> {
             //will make modify panic
             loop {
                 idx += 1;
+                let mut writer_guard = agent_tasks.write().await;
                 for _ in 0..total {
                     let n = rand::random::<i64>() % total;
-                    // let _ = tx.send(format!("will remove task_id {n}")).await;
-                    // let _ = tx.blocking_send(format!("will remove task_id {n}"));
                     println!("will remove task_id {n}");
-                    // std::io::stdout().flush().unwrap();
-                    let mut writer_guard = agent_tasks.write();
                     writer_guard.remove_by_task_id(&n);
                 }
                 tokio::time::sleep(tokio::time::Duration::from_micros(1)).await;
@@ -139,13 +125,9 @@ async fn main() -> anyhow::Result<()> {
         let agent_tasks = agent_tasks.clone();
         async move {
             loop {
-                let mut writer_guard = agent_tasks.write();
+                let mut writer_guard = agent_tasks.write().await;
                 for idx in 0..total {
                     println!("modify agent_id {idx}");
-                    std::io::stdout().flush().unwrap();
-                    // parking_lot 的锁不可以跨线程使用，到 drop 中间不能有 await
-                    // let _ = tx.blocking_send(format!("modify age    nt_id {idx}"));
-                    // let _ = tx.send(format!("modify agent_id {idx}")).await;
                     writer_guard.modify_by_agent_id(&idx, |task| {
                         task.rand_n = rand::random::<i64>();
                         // tokio::task::block_in_place(|| {
