@@ -284,6 +284,91 @@ impl MultiIndexAgentTaskMap {
         }
         refs
     }
+    pub fn modify_by_agent_id3(
+        &mut self,
+        key: &u64,
+        mut f: impl FnMut(&mut AgentTask),
+    ) -> Vec<&AgentTask> {
+        let idxs = match self._agent_id_index.get(key) {
+            Some(container) => container.clone(),
+            _ => ::std::collections::BTreeSet::<usize>::new(),
+        };
+        let mut refs = Vec::with_capacity(idxs.len());
+        let idxs = idxs.into_iter().collect::<Vec<usize>>();
+        if idxs.is_empty() {
+            return refs;
+        }
+        let len = idxs.iter().len();
+        let mut mut_iter = match self._store.get_disjoint_mut::<{ len }>(idxs.try_into().unwrap()) {
+            Ok(iter) => idxs.into_iter().zip(iter.into_iter()),
+            Err(e) => {
+                println!("panic key is: {:?}, error is: {:?}", key, e);
+                // ::core::panicking::panic_fmt(
+                panic!("{}",
+                    format_args!(
+                        "Error getting mutable reference of non-unique field `{0}` in modifier.",
+                        "agent_id",
+                    ),
+                );
+            }
+        };
+        for (idx, elem) in mut_iter.into_iter() {
+            let agent_id_orig = elem.agent_id.clone();
+            let task_id_orig = elem.task_id.clone();
+            f(elem);
+            if elem.agent_id != agent_id_orig {
+                let idxs = self
+                    ._agent_id_index
+                    .get_mut(&agent_id_orig)
+                    .expect(
+                        "Internal invariants broken, unable to find element in index 'field_name' despite being present in another",
+                    );
+                if idxs.len() > 1 {
+                    if !(idxs.remove(&idx)) {
+                        {
+                            // ::core::panicking::panic_fmt(
+                            panic!("{}",
+                                format_args!(
+                                    "Internal invariants broken, unable to find element in index \'field_name\' despite being present in another",
+                                ),
+                            );
+                        };
+                    }
+                } else {
+                    self._agent_id_index.remove(&agent_id_orig);
+                }
+                self._agent_id_index
+                    .entry(elem.agent_id.clone())
+                    .or_insert(::std::collections::BTreeSet::new())
+                    .insert(idx);
+            }
+            if elem.task_id != task_id_orig {
+                let idx = self
+                    ._task_id_index
+                    .remove(&task_id_orig)
+                    .expect(
+                        "Internal invariants broken, unable to find element in index 'field_name' despite being present in another",
+                    );
+                let orig_elem_idx = self
+                    ._task_id_index
+                    .insert(elem.task_id.clone(), idx);
+                if orig_elem_idx.is_some() {
+                    {
+                        // ::core::panicking::panic_fmt(
+                        panic!("{}",
+                            format_args!(
+                                "Unable to insert element, uniqueness constraint violated on field \'{0}\'",
+                                "field_name",
+                            ),
+                        );
+                    };
+                }
+            }
+            refs.push(&*elem);
+            
+        }
+        refs
+    }
     pub fn modify_by_agent_id(
         &mut self,
         key: &u64,
