@@ -298,8 +298,7 @@ impl MultiIndexAgentTaskMap {
         if idxs.is_empty() {
             return refs;
         }
-        let len = idxs.iter().len();
-        let mut mut_iter = match self._store.get_disjoint_mut::<{ len }>(idxs.try_into().unwrap()) {
+        let mut_iter = match self._store.pick_many_mut(&idxs) {
             Ok(iter) => idxs.into_iter().zip(iter.into_iter()),
             Err(e) => {
                 println!("panic key is: {:?}, error is: {:?}", key, e);
@@ -365,7 +364,7 @@ impl MultiIndexAgentTaskMap {
                 }
             }
             refs.push(&*elem);
-            
+
         }
         refs
     }
@@ -384,9 +383,9 @@ impl MultiIndexAgentTaskMap {
                 Some(elem) => {
                     let agent_id_orig = elem.agent_id.clone();
                     let task_id_orig = elem.task_id.clone();
-                    
+
                     f(elem);
-                    
+
                     // 记录需要更新索引的信息
                     if elem.agent_id != agent_id_orig || elem.task_id != task_id_orig {
                         modified_info.push((idx, agent_id_orig, task_id_orig, elem.agent_id.clone(), elem.task_id.clone()));
@@ -397,7 +396,7 @@ impl MultiIndexAgentTaskMap {
                     panic!("Error getting mutable reference of non-unique field 'agent_id' in modifier.");
                 }
             }
-        } 
+        }
 
         // 第二阶段：更新索引
         for (idx, agent_id_orig, task_id_orig, new_agent_id, new_task_id) in modified_info {
@@ -407,7 +406,7 @@ impl MultiIndexAgentTaskMap {
                     ._agent_id_index
                     .get_mut(&agent_id_orig)
                     .expect("Internal invariants broken, unable to find element in index 'agent_id' despite being present in another");
-                
+
                 if idxs.len() > 1 {
                     if !idxs.remove(&idx) {
                         panic!("Internal invariants broken, unable to find element in index 'agent_id' despite being present in another");
@@ -415,27 +414,27 @@ impl MultiIndexAgentTaskMap {
                 } else {
                     self._agent_id_index.remove(&agent_id_orig);
                 }
-                
+
                 self._agent_id_index
                     .entry(new_agent_id)
                     .or_insert(::std::collections::BTreeSet::new())
                     .insert(idx);
             }
-            
+
             // 更新 task_id 索引
             if new_task_id != task_id_orig {
                 let removed_idx = self
                     ._task_id_index
                     .remove(&task_id_orig)
                     .expect("Internal invariants broken, unable to find element in index 'task_id' despite being present in another");
-                
+
                 let orig_elem_idx = self._task_id_index.insert(new_task_id, removed_idx);
                 if orig_elem_idx.is_some() {
                     panic!("Unable to insert element, uniqueness constraint violated on field 'task_id'");
                 }
             }
         }
-        
+
         // 第三阶段：收集引用（需要重新借用）
         let mut refs = Vec::with_capacity(idxs.len());
         for &idx in &idxs {
@@ -805,7 +804,7 @@ fn main() -> anyhow::Result<()> {
         });
         tasks.push(jd);
 
-        
+
 
         tasks
             .push(
@@ -858,7 +857,7 @@ fn main() -> anyhow::Result<()> {
                                 let _ = tx.send(format!("modify agent_id {idx}")).await;
                                 // let _ = tx.blocking_send(format!("modify agent_id {idx}"));
                                 writer_guard
-                                    .modify_by_agent_id(
+                                    .modify_by_agent_id3(
                                         &idx,
                                         |task| {
                                             tokio::task::block_in_place(|| {

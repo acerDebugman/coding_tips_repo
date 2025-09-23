@@ -245,7 +245,7 @@ dependencies = [
  "memchr",
  "pin-project-lite",
  "pin-utils",
- "slab",
+ "slab 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -416,7 +416,7 @@ version = "0.15.0"
 dependencies = [
  "multi_index_map_derive",
  "rustc-hash",
- "slab",
+ "slab 0.4.11",
 ]
 
 [[package]]
@@ -710,6 +710,10 @@ dependencies = [
 [[package]]
 name = "slab"
 version = "0.4.11"
+
+[[package]]
+name = "slab"
+version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a2ae44ef20feb57a68b23d846850f861394c2e02dc425a50098ae8c90267589"
 
@@ -829,7 +833,7 @@ dependencies = [
  "mio",
  "pin-project-lite",
  "signal-hook-registry",
- "slab",
+ "slab 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "socket2",
  "tokio-macros",
  "windows-sys 0.59.0",
