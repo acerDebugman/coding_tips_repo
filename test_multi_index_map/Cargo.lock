@@ -413,15 +413,17 @@ dependencies = [
 [[package]]
 name = "multi_index_map"
 version = "0.15.0"
+source = "git+https://github.com/acerDebugman/multi_index_map.git?tag=v0.1-taos#fab6c9cd808c69202ec77b683c4dced3910a15b0"
 dependencies = [
  "multi_index_map_derive",
  "rustc-hash",
- "slab 0.4.11",
+ "slab 0.4.11 (git+https://github.com/acerDebugman/slab.git?tag=v0.1-taos)",
 ]
 
 [[package]]
 name = "multi_index_map_derive"
 version = "0.15.0"
+source = "git+https://github.com/acerDebugman/multi_index_map.git?tag=v0.1-taos#fab6c9cd808c69202ec77b683c4dced3910a15b0"
 dependencies = [
  "convert_case",
  "proc-macro-error2",
@@ -710,12 +712,13 @@ dependencies = [
 [[package]]
 name = "slab"
 version = "0.4.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a2ae44ef20feb57a68b23d846850f861394c2e02dc425a50098ae8c90267589"
 
 [[package]]
 name = "slab"
 version = "0.4.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a2ae44ef20feb57a68b23d846850f861394c2e02dc425a50098ae8c90267589"
+source = "git+https://github.com/acerDebugman/slab.git?tag=v0.1-taos#524359d4705fe60b35d5fb0e462cf68acb9bc568"
 
 [[package]]
 name = "smallvec"

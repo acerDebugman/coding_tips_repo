@@ -5,7 +5,7 @@ edition = "2024"
 default-run = "test_multi_index_map"
 
 [dependencies]
-multi_index_map = { path ="/home/algo/rust_space/multi_index_map/multi_index_map" }
+multi_index_map = { git ="https://github.com/acerDebugman/multi_index_map.git", tag="v0.1-taos" }
 #multi_index_map = "0.15.0"
 # tokio = { version = "1.46", features = [
 tokio = { version = "1.47.1", features = [
